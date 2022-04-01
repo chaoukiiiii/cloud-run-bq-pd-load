@@ -3,7 +3,7 @@ from flask import Flask, request
 from google.cloud import bigquery
 from google.cloud import storage
 from google.api_core.exceptions import NotFound
-
+import pandas as pd
 app = Flask(__name__)
 
 
@@ -19,6 +19,13 @@ def entry():
     table_name=os.environ.get('TABLENAME')
     archive_folder=os.environ.get('ARCHIVEFOLDER')
     ################### values example for envirement variable #################
+    #bucket = "gs://cloud-run-bq-celine"
+    #folder = "covid_folder"
+    #pattern="example_data_covid"
+    #delimter=","
+    #dataset="cloud_run_bq"
+    #table_name = "cloud_run_bq_init"
+    #archive_folder="covid_folder_archive"
     print ("display Ingestion Configuration")
     print("bucket Name :", bucket)
     print("folder Name :", folder)
@@ -52,21 +59,14 @@ def entry():
        client.get_dataset(dataset)  # Make an API request.
        print("Dataset {} already exists".format(dataset))
     except NotFound:
-       print("Dataset {} is not found".format(dataset))
-       return ("Error  there is No Dataset matchs the provided dataset variable.", 500)
+        print("Dataset {} is not found".format(dataset))
+        return ("Error  there is No Dataset matchs the provided dataset variable.", 500)
     # Setup the job to append to the table if it already exists and to autodetect the schema
-    job_config = bigquery.LoadJobConfig(
-    write_disposition=bigquery.WriteDisposition.WRITE_TRUNCATE,
-    source_format=bigquery.SourceFormat.CSV,
-    skip_leading_rows=1,
-    autodetect=True
-    )
+    # Run the load job
+    df=pd.read_csv(uri,sep=delimiter)
 
     # Run the load job
-    load_job = client.load_table_from_uri(uri, table, job_config=job_config)
-
-    # Run the job synchronously and wait for it to complete
-    load_job.result()
+    load_job = client.load_table_from_dataframe(df, table)
 
     print ("Loaded files located at ",bucket, " /",folder,"/")
     bucket_initial = storage_client.get_bucket(bucket)
