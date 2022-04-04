@@ -11,13 +11,15 @@ app = Flask(__name__)
 def entry():
     # Load the file into BigQuery
     client = bigquery.Client()
-    bucket = os.environ.get('BUCKET')
-    folder=os.environ.get('FOLDER')
-    pattern=os.environ.get('PATTERN')
-    delimiter=os.environ.get('DELIMITER')
-    dataset=os.environ.get('DATASET')
-    table_name=os.environ.get('TABLENAME')
-    archive_folder=os.environ.get('ARCHIVEFOLDER')
+    storage_client = storage.Client()
+    data = request.get_json()
+    bucket = data['BUCKET']
+    folder=data['FOLDER']
+    pattern=data['PATTERN']
+    delimiter=data['DELIMITER']
+    dataset=data['DATASET']
+    table_name=data['TABLENAME']
+    archive_folder=data['ARCHIVEFOLDER']
     ################### values example for envirement variable #################
     #bucket = "gs://cloud-run-bq-celine"
     #folder = "covid_folder"
@@ -55,7 +57,6 @@ def entry():
     table=dataset+"."+table_name
     uri="gs://"+bucket+"/"+folder+"/"+pattern+"*.csv"
     # get files from uri
-    storage_client = storage.Client()
     bucket_initial = storage_client.get_bucket(bucket)
     blobs = bucket_initial.list_blobs(prefix=folder+'/'+pattern)
     if len(list(blobs))==0:
