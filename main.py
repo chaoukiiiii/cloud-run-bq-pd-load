@@ -38,6 +38,12 @@ def entry():
     if bucket is None:
         print("Error: bucket environment variable is not defined correctly")
         return ("Error bucket environment variable is not defined correctly.", 500)
+    try:
+        C = storage_client.get_bucket(bucket)
+        print(C)
+    except:
+        print("Error Verify the Name of bucket please ")
+        return ("Error Verify the Name of bucket please.", 500)
     if table_name is None or folder is None or pattern is None or delimiter is None or dataset is None or archive_folder is None:
         print("Error:  environments variables are not defined correctly")
         return ("Error  environments variables are not defined correctly.", 500)
