@@ -75,6 +75,7 @@ def entry():
     with pd.read_csv(uri,sep=delimiter,dtype = str, chunksize=chunksize) as reader:
        for chunk in reader:
            # Run the load job
+           chunk=chunk.astype(str)
            print("load chunk")
            load_job = client.load_table_from_dataframe(chunk, table)
          
