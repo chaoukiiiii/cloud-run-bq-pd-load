@@ -70,15 +70,21 @@ def entry():
         return ("Error  there is No Dataset matchs the provided dataset variable.", 500)
     # Setup the job to append to the table if it already exists and to autodetect the schema
     # Run the load job
-    df=pd.read_csv(uri,sep=delimiter,dtype = str)
+    
+    chunksize = 10 ** 6
+    with pd.read_csv(uri,sep=delimiter,dtype = str, chunksize=chunksize) as reader:
+       for chunk in reader:
+           # Run the load job
+           load_job = client.load_table_from_dataframe(chunk, table)
+         
 
-    # Run the load job
-    load_job = client.load_table_from_dataframe(df, table)
+    
 
     print ("Loaded files located at ",bucket, " /",folder,"/")
     bucket_initial = storage_client.get_bucket(bucket)
     blobs = bucket_initial.list_blobs(prefix=folder+'/'+pattern)
     for i in blobs:
+        print(i)
         bucket_initial.rename_blob(i, new_name=i.name.replace(folder+'/', archive_folder+'/archived_'))
 
     print ("Archives files to ",bucket, " /",archive_folder,"/")
