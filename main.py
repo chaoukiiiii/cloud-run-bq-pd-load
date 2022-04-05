@@ -72,7 +72,7 @@ def entry():
     # Run the load job
     
     chunksize = 10 ** 5
-    chunksize=chunksize*5
+    chunksize=chunksize*2
     with pd.read_csv(uri,sep=delimiter,dtype = str, chunksize=chunksize) as reader:
        for chunk in reader:
            # Run the load job
