@@ -71,10 +71,11 @@ def entry():
     # Setup the job to append to the table if it already exists and to autodetect the schema
     # Run the load job
     
-    chunksize = 10 ** 6
+    chunksize = 10 ** 5
     with pd.read_csv(uri,sep=delimiter,dtype = str, chunksize=chunksize) as reader:
        for chunk in reader:
            # Run the load job
+           print("load chunk")
            load_job = client.load_table_from_dataframe(chunk, table)
          
 
